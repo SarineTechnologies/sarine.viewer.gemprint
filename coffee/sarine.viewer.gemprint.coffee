@@ -1,5 +1,5 @@
 ###!
-sarine.viewer.pdf - v0.11.0 -  Monday, August 15th, 2016, 11:32:29 AM 
+sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 15th, 2017, 1:25:47 PM 
  The source code, name, and look and feel of the software are Copyright © 2015 Sarine Technologies Ltd. All Rights Reserved. You may not duplicate, copy, reuse, sell or otherwise exploit any portion of the code, content or visual design elements without express written permission from Sarine Technologies Ltd. The terms and conditions of the sarine.com website (http://sarine.com/terms-and-conditions/) apply to the access and use of this software.
 ###
 class GEMPRINT extends Viewer
@@ -13,7 +13,8 @@ class GEMPRINT extends Viewer
 
 	first_init : ()-> 
 		defer = $.Deferred()
-		@fullSrc = if @src.indexOf('##FILE_NAME##') != -1 then @src.replace '##FILE_NAME##' , @gemPrintName else @src + @gemPrintName 
+		@image = window.stones[0].viewers.resources.gemprintScintillationImage
+		@fullSrc = @image
 		_t = @	 
 		@previewSrc = if @fullSrc.indexOf('?') == -1 then @fullSrc + '.gif' else (@fullSrc.split('?')[0] + '.gif?' + @fullSrc.split('?')[1])
 		@loadImage(@previewSrc).then((img)->  	

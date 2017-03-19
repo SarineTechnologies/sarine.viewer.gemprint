@@ -1,5 +1,5 @@
 ###!
-sarine.viewer.pdf - v0.11.0 -  Monday, August 15th, 2016, 11:32:29 AM 
+sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 15th, 2017, 1:25:47 PM 
  The source code, name, and look and feel of the software are Copyright © 2015 Sarine Technologies Ltd. All Rights Reserved. You may not duplicate, copy, reuse, sell or otherwise exploit any portion of the code, content or visual design elements without express written permission from Sarine Technologies Ltd. The terms and conditions of the sarine.com website (http://sarine.com/terms-and-conditions/) apply to the access and use of this software.
 ###
 
@@ -37,7 +37,7 @@ class Viewer
 class GEMPRINT extends Viewer
 	constructor: (options) ->
 		super(options)
-		{@GEMPRINTName, @limitSize} = options
+		{@gemPrintName, @limitSize} = options   	
 		@limitSize = @limitSize || 250	
 		
 	convertElement : () -> 
@@ -45,12 +45,12 @@ class GEMPRINT extends Viewer
 
 	first_init : ()-> 
 		defer = $.Deferred()
-		@fullSrc = if @src.indexOf('##FILE_NAME##') != -1 then @src.replace '##FILE_NAME##' , @GEMPRINTName else @src + @GEMPRINTName
+		@fullSrc = if @src.indexOf('##FILE_NAME##') != -1 then @src.replace '##FILE_NAME##' , @gemPrintName else @src + @gemPrintName 
 		_t = @	 
-		@previewSrc = if @fullSrc.indexOf('?') == -1 then @fullSrc + '.png' else (@fullSrc.split('?')[0] + '.png?' + @fullSrc.split('?')[1]) 
+		@previewSrc = if @fullSrc.indexOf('?') == -1 then @fullSrc + '.gif' else (@fullSrc.split('?')[0] + '.gif?' + @fullSrc.split('?')[1])
 		@loadImage(@previewSrc).then((img)->  	
 				canvas = $("<canvas>") 
-				imgName = if (img.src == _t.callbackPic || img.src.indexOf('data:image') != -1) then 'GEMPRINT-thumb no_stone' else 'GEMPRINT-thumb'
+				imgName = if (img.src == _t.callbackPic || img.src.indexOf('data:image') != -1) then 'GEMPRINT-thumb no_stone' else 'GEMPRINT-thumb'	
 				ctx = canvas[0].getContext('2d')	
 				imgDimensions = _t.scaleImage(img)				
 

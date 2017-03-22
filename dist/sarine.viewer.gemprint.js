@@ -1,6 +1,6 @@
 
 /*!
-sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 22nd, 2017, 11:53:32 AM 
+sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 22nd, 2017, 6:02:50 PM 
  The source code, name, and look and feel of the software are Copyright © 2015 Sarine Technologies Ltd. All Rights Reserved. You may not duplicate, copy, reuse, sell or otherwise exploit any portion of the code, content or visual design elements without express written permission from Sarine Technologies Ltd. The terms and conditions of the sarine.com website (http://sarine.com/terms-and-conditions/) apply to the access and use of this software.
  */
 
@@ -26,41 +26,55 @@ sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 22nd, 2017, 11:53:32 AM
     };
 
     GEMPRINT.prototype.first_init = function() {
-      var defer, _t;
+      var defer, imageElement, _t;
       defer = $.Deferred();
       this.image = window.stones[0].viewers.resources.gemprintScintillationImage;
       this.clickUrl = (window.stones[0].stoneProperties.tags.filter(function(i) {
         return i.key === "GemprintURL";
-      }))[0].value;
-      this.fullSrc = this.image;
+      }))[0];
+      if (this.clickUrl != null) {
+        this.clickUrl = this.clickUrl.value;
+      }
+      if (this.image != null) {
+        this.previewSrc = this.image;
+      }
       _t = this;
-      this.previewSrc = this.fullSrc;
-      return this.loadImage(this.previewSrc).then(function(img) {
-        var imageElement, imgDimensions, imgName;
-        imageElement = $("<img>");
-        imgName = img.src === _t.callbackPic || img.src.indexOf('data:image') !== -1 ? 'GEMPRINT-thumb no_stone' : 'GEMPRINT-thumb';
-        imageElement.attr({
-          src: img.src
+      if ((this.previewSrc != null)) {
+        return this.loadImage(this.previewSrc).then(function(img) {
+          var imageElement, imgDimensions;
+          imageElement = $("<img>");
+          imageElement.attr({
+            src: img.src
+          });
+          imgDimensions = _t.scaleImage(img);
+          imageElement.attr({
+            width: imgDimensions.width,
+            height: imgDimensions.height
+          });
+          _t.element.append(imageElement);
+          if (!imageElement.hasClass('no_stone')) {
+            imageElement.on('click', (function(_this) {
+              return function(e) {
+                return _t.initPopup(_t.clickUrl);
+              };
+            })(this));
+            imageElement.attr({
+              'style': 'cursor:pointer;'
+            });
+          }
+          return defer.resolve(_t);
         });
-        imgDimensions = _t.scaleImage(img);
+      } else {
+        imageElement = $("<img>");
         imageElement.attr({
-          width: imgDimensions.width,
-          height: imgDimensions.height,
-          "class": imgName
+          "class": 'PDF-thumb no_stone'
+        });
+        imageElement.attr({
+          src: _t.callbackPic
         });
         _t.element.append(imageElement);
-        if (!imageElement.hasClass('no_stone')) {
-          imageElement.on('click', (function(_this) {
-            return function(e) {
-              return _t.initPopup(_t.clickUrl);
-            };
-          })(this));
-          imageElement.attr({
-            'style': 'cursor:pointer;'
-          });
-        }
         return defer.resolve(_t);
-      });
+      }
     };
 
     GEMPRINT.prototype.initPopup = function(src) {

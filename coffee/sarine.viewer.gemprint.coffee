@@ -1,5 +1,5 @@
 ###!
-sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 22nd, 2017, 11:53:32 AM 
+sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 22nd, 2017, 6:02:50 PM 
  The source code, name, and look and feel of the software are Copyright © 2015 Sarine Technologies Ltd. All Rights Reserved. You may not duplicate, copy, reuse, sell or otherwise exploit any portion of the code, content or visual design elements without express written permission from Sarine Technologies Ltd. The terms and conditions of the sarine.com website (http://sarine.com/terms-and-conditions/) apply to the access and use of this software.
 ###
 class GEMPRINT extends Viewer
@@ -12,25 +12,35 @@ class GEMPRINT extends Viewer
 		@element
 
 	first_init : ()->
+
 		defer = $.Deferred()
 		@image = window.stones[0].viewers.resources.gemprintScintillationImage
-		@clickUrl =    (window.stones[0].stoneProperties.tags.filter (i) -> i.key is "GemprintURL")[0].value
-		@fullSrc = @image
-		_t = @
-		@previewSrc = @fullSrc
-		@loadImage(@previewSrc).then((img)->
-			imageElement = $("<img>")
-			imgName = if (img.src == _t.callbackPic || img.src.indexOf('data:image') != -1) then 'GEMPRINT-thumb no_stone' else 'GEMPRINT-thumb'
-			imageElement.attr({src: img.src})
-			imgDimensions = _t.scaleImage(img)
-			imageElement.attr({width : imgDimensions.width, height : imgDimensions.height, class : imgName})
-			_t.element.append(imageElement)
+		@clickUrl =    (window.stones[0].stoneProperties.tags.filter (i) -> i.key is "GemprintURL")[0]
+		if @clickUrl? then @clickUrl = @clickUrl.value
+		if @image? then @previewSrc = @image
 
-			if(!imageElement.hasClass('no_stone'))
-				imageElement.on 'click', (e) => _t.initPopup(_t.clickUrl )
-				imageElement.attr {'style':'cursor:pointer;'}
-			defer.resolve(_t)
+
+
+		_t = @
+		if(@previewSrc?)
+			@loadImage(@previewSrc).then((img)->
+				imageElement = $("<img>")
+				imageElement.attr({src: img.src})
+				imgDimensions = _t.scaleImage(img)
+				imageElement.attr({width : imgDimensions.width, height : imgDimensions.height})
+				_t.element.append(imageElement)
+
+				if(!imageElement.hasClass('no_stone'))
+					imageElement.on 'click', (e) => _t.initPopup(_t.clickUrl )
+					imageElement.attr {'style':'cursor:pointer;'}
+				defer.resolve(_t)
 			)
+		else
+			imageElement = $("<img>")
+			imageElement.attr({ class: 'PDF-thumb no_stone'})
+			imageElement.attr({src:_t.callbackPic})
+			_t.element.append(imageElement);
+			defer.resolve(_t)
 
 	initPopup : (src)=>
 

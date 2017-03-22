@@ -1,6 +1,6 @@
 
 /*!
-sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 15th, 2017, 1:25:47 PM 
+sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 22nd, 2017, 11:28:09 AM 
  The source code, name, and look and feel of the software are Copyright © 2015 Sarine Technologies Ltd. All Rights Reserved. You may not duplicate, copy, reuse, sell or otherwise exploit any portion of the code, content or visual design elements without express written permission from Sarine Technologies Ltd. The terms and conditions of the sarine.com website (http://sarine.com/terms-and-conditions/) apply to the access and use of this software.
  */
 
@@ -15,6 +15,7 @@ sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 15th, 2017, 1:25:47 PM
 
     function GEMPRINT(options) {
       this.scaleImage = __bind(this.scaleImage, this);
+      this.initPopup = __bind(this.initPopup, this);
       GEMPRINT.__super__.constructor.call(this, options);
       this.gemPrintName = options.gemPrintName, this.limitSize = options.limitSize;
       this.limitSize = this.limitSize || 250;
@@ -27,34 +28,72 @@ sarine.viewer.gemprint - v0.11.0 -  Wednesday, March 15th, 2017, 1:25:47 PM
     GEMPRINT.prototype.first_init = function() {
       var defer, _t;
       defer = $.Deferred();
-      this.fullSrc = this.src.indexOf('##FILE_NAME##') !== -1 ? this.src.replace('##FILE_NAME##', this.gemPrintName) : this.src + this.gemPrintName;
+      this.image = window.stones[0].viewers.resources.gemprintScintillationImage;
+      this.clickUrl = (window.stones[0].stoneProperties.tags.filter(function(i) {
+        return i.key === "GemprintURL";
+      }))[0].value;
+      this.fullSrc = this.image;
       _t = this;
-      this.previewSrc = this.fullSrc.indexOf('?') === -1 ? this.fullSrc + '.gif' : this.fullSrc.split('?')[0] + '.gif?' + this.fullSrc.split('?')[1];
+      this.previewSrc = this.fullSrc;
       return this.loadImage(this.previewSrc).then(function(img) {
-        var canvas, ctx, imgDimensions, imgName;
-        canvas = $("<canvas>");
+        var imageElement, imgDimensions, imgName;
+        imageElement = $("<img>");
         imgName = img.src === _t.callbackPic || img.src.indexOf('data:image') !== -1 ? 'GEMPRINT-thumb no_stone' : 'GEMPRINT-thumb';
-        ctx = canvas[0].getContext('2d');
+        imageElement.attr({
+          src: img.src
+        });
         imgDimensions = _t.scaleImage(img);
-        canvas.attr({
+        imageElement.attr({
           width: imgDimensions.width,
           height: imgDimensions.height,
           "class": imgName
         });
-        ctx.drawImage(img, 0, 0, imgDimensions.width, imgDimensions.height);
-        _t.element.append(canvas);
-        if (!canvas.hasClass('no_stone')) {
-          canvas.on('click', (function(_this) {
+        _t.element.append(imageElement);
+        if (!imageElement.hasClass('no_stone')) {
+          imageElement.on('click', (function(_this) {
             return function(e) {
-              return window.open(_t.fullSrc, '_blank');
+              return _t.initPopup(_t.clickUrl);
             };
           })(this));
-          canvas.attr({
+          imageElement.attr({
             'style': 'cursor:pointer;'
           });
         }
         return defer.resolve(_t);
       });
+    };
+
+    GEMPRINT.prototype.initPopup = function(src) {
+      var closeButton, gemPrintContainer, iframeElement, sliderHeight, sliderWrap;
+      sliderWrap = $(".slider-wrap");
+      gemPrintContainer = $('#iframe-gemprint-container');
+      iframeElement = $('#iframe-gemprint');
+      closeButton = $('#closeIframe');
+      if (gemPrintContainer.length === 0) {
+        sliderHeight = $('.slider-wrap').last().height();
+        gemPrintContainer = $('<div id="iframe-gemprint-container" class="slider-wrap">');
+        gemPrintContainer.height(sliderHeight);
+        iframeElement = $('<iframe id="iframe-gemprint" frameborder=0 scrolling=yes></iframe>');
+        iframeElement.css('width', '100%');
+        iframeElement.css('height', '100%');
+        iframeElement.css('overflow', 'scroll');
+        closeButton = $('<a id="closeGemPrintReport">&times;</a>');
+        closeButton.css('font-size', '35px');
+        closeButton.css('position', 'absolute');
+        closeButton.css('right', '10px');
+        gemPrintContainer.append(closeButton);
+        gemPrintContainer.append(iframeElement);
+        sliderWrap.before(gemPrintContainer);
+      }
+      iframeElement.attr('src', src);
+      sliderWrap.css('display', 'none');
+      gemPrintContainer.css('display', 'block');
+      return closeButton.on('click', ((function(_this) {
+        return function() {
+          sliderWrap.css('display', 'block');
+          gemPrintContainer.css('display', 'none');
+        };
+      })(this)));
     };
 
     GEMPRINT.prototype.scaleImage = function(img) {

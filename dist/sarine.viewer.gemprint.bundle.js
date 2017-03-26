@@ -1,6 +1,6 @@
 
 /*!
-sarine.viewer.gemprint - v0.11.0 -  Thursday, March 23rd, 2017, 11:24:00 AM 
+sarine.viewer.gemprint - v0.11.0 -  Sunday, March 26th, 2017, 11:11:49 AM 
  The source code, name, and look and feel of the software are Copyright © 2015 Sarine Technologies Ltd. All Rights Reserved. You may not duplicate, copy, reuse, sell or otherwise exploit any portion of the code, content or visual design elements without express written permission from Sarine Technologies Ltd. The terms and conditions of the sarine.com website (http://sarine.com/terms-and-conditions/) apply to the access and use of this software.
  */
 
@@ -90,9 +90,12 @@ sarine.viewer.gemprint - v0.11.0 -  Thursday, March 23rd, 2017, 11:24:00 AM
       var defer, imageElement, _t;
       defer = $.Deferred();
       this.image = window.stones[0].viewers.resources.gemprintScintillationImage;
-      this.clickUrl = (window.stones[0].stoneProperties.tags.filter(function(i) {
+      this.clickUrlArray = window.stones[0].stoneProperties.tags.filter(function(i) {
         return i.key === "GemprintURL";
-      }))[0];
+      });
+      if (this.clickUrlArray.length > 0) {
+        this.clickUrl = this.clickUrlArray[0];
+      }
       if (this.clickUrl != null) {
         this.clickUrl = this.clickUrl.value;
       }
@@ -146,17 +149,10 @@ sarine.viewer.gemprint - v0.11.0 -  Thursday, March 23rd, 2017, 11:24:00 AM
       closeButton = $('#closeIframe');
       if (gemPrintContainer.length === 0) {
         gemPrintContainer = $('<div id="iframe-gemprint-container" class="slider-wrap">');
-        gemPrintContainer.css('-webkit-overflow-scrolling', 'touch');
-        gemPrintContainer.css('overflow-y', 'scroll');
         sliderHeight = $('.slider-wrap').last().height();
         gemPrintContainer.height(sliderHeight);
         iframeElement = $('<iframe id="iframe-gemprint" frameborder=0></iframe>');
-        iframeElement.css('width', '100%');
-        iframeElement.css('height', '100%');
         closeButton = $('<a id="closeGemPrintReport">&times;</a>');
-        closeButton.css('font-size', '35px');
-        closeButton.css('position', 'absolute');
-        closeButton.css('right', '10px');
         gemPrintContainer.append(closeButton);
         gemPrintContainer.append(iframeElement);
         sliderWrap.before(gemPrintContainer);

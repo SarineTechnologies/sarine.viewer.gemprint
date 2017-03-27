@@ -1,5 +1,5 @@
 ###!
-sarine.viewer.gemprint - v0.11.0 -  Sunday, March 26th, 2017, 11:11:49 AM 
+sarine.viewer.gemprint - v0.11.0 -  Monday, March 27th, 2017, 3:38:13 PM 
  The source code, name, and look and feel of the software are Copyright © 2015 Sarine Technologies Ltd. All Rights Reserved. You may not duplicate, copy, reuse, sell or otherwise exploit any portion of the code, content or visual design elements without express written permission from Sarine Technologies Ltd. The terms and conditions of the sarine.com website (http://sarine.com/terms-and-conditions/) apply to the access and use of this software.
 ###
 
@@ -47,8 +47,12 @@ class GEMPRINT extends Viewer
 
 		defer = $.Deferred()
 		@image = window.stones[0].viewers.resources.gemprintScintillationImage
-		@clickUrlArray =    (window.stones[0].stoneProperties.tags.filter (i) -> i.key is "GemprintURL")
-		if @clickUrlArray.length  > 0 then @clickUrl = @clickUrlArray[0]
+		tags = window.stones[0].stoneProperties.tags
+		if tags != null
+			@clickUrlArray = tags.filter((i) ->
+				i.key == 'GemprintURL'
+			)
+		if(@clickUrlArray?) and  @clickUrlArray.length  > 0 then @clickUrl = @clickUrlArray[0]
 		if @clickUrl? then @clickUrl = @clickUrl.value
 		if @image? then @previewSrc = @image
 
@@ -75,14 +79,16 @@ class GEMPRINT extends Viewer
 			_t.element.append(imageElement);
 			defer.resolve(_t)
 
-	initPopup : (src)=>
 
+	initPopup : (src)=>
+	 _t = @
 		sliderWrap = $(".slider-wrap")
 		gemPrintContainer = $('#iframe-gemprint-container')
 		iframeElement = $('#iframe-gemprint')
 		closeButton = $('#closeIframe')
 		if (gemPrintContainer.length == 0)
 			gemPrintContainer = $('<div id="iframe-gemprint-container" class="slider-wrap">')
+			if _t.inIframe() then gemPrintContainer.addClass('iframe-gemprint-container-hide')
 			sliderHeight = $('.slider-wrap').last().height()
 			gemPrintContainer.height(sliderHeight)
 			iframeElement = $('<iframe id="iframe-gemprint" frameborder=0></iframe>')
@@ -105,7 +111,12 @@ class GEMPRINT extends Viewer
 
 
 
-
+	inIframe :()->
+		try
+			return window.self != window.top
+		catch e
+			return true
+		return
 	scaleImage : (img)=>
 		imgDimensions = {}
 		imgDimensions.width = img.width

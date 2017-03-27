@@ -1,6 +1,6 @@
 
 /*!
-sarine.viewer.gemprint - v0.11.0 -  Sunday, March 26th, 2017, 11:11:49 AM 
+sarine.viewer.gemprint - v0.11.0 -  Monday, March 27th, 2017, 3:38:13 PM 
  The source code, name, and look and feel of the software are Copyright © 2015 Sarine Technologies Ltd. All Rights Reserved. You may not duplicate, copy, reuse, sell or otherwise exploit any portion of the code, content or visual design elements without express written permission from Sarine Technologies Ltd. The terms and conditions of the sarine.com website (http://sarine.com/terms-and-conditions/) apply to the access and use of this software.
  */
 
@@ -87,13 +87,16 @@ sarine.viewer.gemprint - v0.11.0 -  Sunday, March 26th, 2017, 11:11:49 AM
     };
 
     GEMPRINT.prototype.first_init = function() {
-      var defer, imageElement, _t;
+      var defer, imageElement, tags, _t;
       defer = $.Deferred();
       this.image = window.stones[0].viewers.resources.gemprintScintillationImage;
-      this.clickUrlArray = window.stones[0].stoneProperties.tags.filter(function(i) {
-        return i.key === "GemprintURL";
-      });
-      if (this.clickUrlArray.length > 0) {
+      tags = window.stones[0].stoneProperties.tags;
+      if (tags !== null) {
+        this.clickUrlArray = tags.filter(function(i) {
+          return i.key === 'GemprintURL';
+        });
+      }
+      if ((this.clickUrlArray != null) && this.clickUrlArray.length > 0) {
         this.clickUrl = this.clickUrlArray[0];
       }
       if (this.clickUrl != null) {
@@ -142,13 +145,17 @@ sarine.viewer.gemprint - v0.11.0 -  Sunday, March 26th, 2017, 11:11:49 AM
     };
 
     GEMPRINT.prototype.initPopup = function(src) {
-      var closeButton, gemPrintContainer, iframeElement, sliderHeight, sliderWrap;
+      var closeButton, gemPrintContainer, iframeElement, sliderHeight, sliderWrap, _t;
+      _t = this;
       sliderWrap = $(".slider-wrap");
       gemPrintContainer = $('#iframe-gemprint-container');
       iframeElement = $('#iframe-gemprint');
       closeButton = $('#closeIframe');
       if (gemPrintContainer.length === 0) {
         gemPrintContainer = $('<div id="iframe-gemprint-container" class="slider-wrap">');
+        if (_t.inIframe()) {
+          gemPrintContainer.addClass('iframe-gemprint-container-hide');
+        }
         sliderHeight = $('.slider-wrap').last().height();
         gemPrintContainer.height(sliderHeight);
         iframeElement = $('<iframe id="iframe-gemprint" frameborder=0></iframe>');
@@ -166,6 +173,16 @@ sarine.viewer.gemprint - v0.11.0 -  Sunday, March 26th, 2017, 11:11:49 AM
           gemPrintContainer.css('display', 'none');
         };
       })(this)));
+    };
+
+    GEMPRINT.prototype.inIframe = function() {
+      var e;
+      try {
+        return window.self !== window.top;
+      } catch (_error) {
+        e = _error;
+        return true;
+      }
     };
 
     GEMPRINT.prototype.scaleImage = function(img) {
